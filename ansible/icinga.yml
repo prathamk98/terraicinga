@@ -1,0 +1,118 @@
+---
+- name: "Setting up icinga"
+  hosts: myhosts
+  become: true
+  vars_files:
+    - inventory/vars/icinga_var.yml
+  tasks:
+    - name: "Setting gpg key"
+      ansible.builtin.apt_key:
+        url: "{{ key_url }}"
+        keyring: "{{ keyring_name }}"
+        state: present
+
+    - name: "Adding repos 1"
+      ansible.builtin.apt_repository:
+        repo: "{{ repo_str1 }}"
+        state: present
+        filename: /etc/apt/sources.list.d/{{ DIST }}-icinga1.
+        update_cache: true
+
+    - name: "Adding repos 2"
+      ansible.builtin.apt_repository:
+        repo: "{{ repo_str2 }}"
+        state: present
+        filename: /etc/apt/sources.list.d/{{ DIST }}-icinga2
+        update_cache: true
+
+    - name: "Installing packages"
+      ansible.builtin.apt:
+        name: "{{ pkg }}"
+        state: present
+
+      # loop:
+      #   - "{{ pkg }}"
+    - name: "Set up Icinga 2 API"
+      ansible.builtin.command: icinga2 api setup
+      changed_when: true
+
+    - name: "Restarting icinga2 service"
+      ansible.builtin.service:
+        name: icinga2
+        state: restarted
+
+    - name: "Enabling mariadb server"
+      ansible.builtin.systemd:
+        name: mariadb
+        enabled: true
+        state: restarted
+
+    - name: "Adding php config"
+      ansible.builtin.copy:
+        src: php.ini
+        dest: /etc/php/7.4/apache2
+        force: true
+        mode: "0755"
+
+    - name: "Enabling apache2 server"
+      ansible.builtin.systemd:
+        name: apache2
+        enabled: true
+        state: restarted
+
+    - name: "Create database icinga_ido_db"
+      community.mysql.mysql_db:
+        name: "{{ item }}"
+        state: present
+        login_unix_socket: /run/mysqld/mysqld.sock
+      loop:
+        - "{{ database }}"
+
+    - name: "Set Permission to icinga_ido_db"
+      community.mysql.mysql_user:
+        name: "icinga_ido_db"
+        login_password: Password321
+        login_unix_socket: /run/mysqld/mysqld.sock
+        priv: '*.*:ALL'
+        state: present
+
+    - name: "Set Permission to icingaweb2"
+      community.mysql.mysql_user:
+        name: "icingaweb2"
+        login_password: Password321
+        login_unix_socket: /run/mysqld/mysqld.sock
+        priv: '*.*:ALL'
+        state: present
+
+    - name: "FLUSH PRIVILEGES"
+      community.mysql.mysql_query:
+        query: FLUSH PRIVILEGES
+        login_password: Password321
+        login_unix_socket: /run/mysqld/mysqld.sock
+
+    - name: "Load Schema"
+      community.mysql.mysql_db:
+        name: mysql.sql
+        state: present
+        db: icinga_ido_db
+        login_unix_socket: /run/mysqld/mysqld.sock
+
+    - name: "Enabling icinga2-ido-mysql"
+      community.general.icinga2_feature:
+        name: ido-mysql
+        state: present
+
+    - name: "Restarting icinga2 service"
+      ansible.builtin.service:
+        name: icinga2
+        state: restarted
+
+    - name: "Setup icinga2 token"
+      ansible.builtin.command: icingacli setup token create
+      register: token_output
+      changed_when: true
+
+    - name: "Get the icing2 web token"
+      ansible.builtin.debug:
+        msg: "The generated token is  {{ token_output.stdout }}"
+...

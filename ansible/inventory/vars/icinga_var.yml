@@ -1,0 +1,43 @@
+pkg:
+  - apt-transport-https
+  - wget
+  - gnupg
+  - icinga2
+  - apache2
+  - mariadb-server
+  - mariadb-client
+  - mariadb-common
+  - php
+  - php-gd
+  # - php-mbs
+  # - tring
+  - php-mysqlnd
+  - php-curl
+  - php-xml
+  - php-cli
+  - php-soap
+  - php-intl
+  - php-xmlrpc
+  - php-zip
+  - php-common
+  - php-opcache
+  - php-gmp
+  - php-imagick
+  - php-pgsql
+  - monitoring-plugins
+  - icingadb-redis
+  - icingadb
+  - icingadb-web
+  - python3-pymysql
+  - icinga2-ido-mysql
+  - icingaweb2
+  - icingacli
+DIST: focal
+database:
+  - icinga_ido_db
+  - icingaweb2
+mariadb_root_password : "qwedsa@123"
+key_url: "https://packages.icinga.com/icinga.key"
+keyring_name: "/usr/share/keyrings/icinga-archive-keyring.gpg"
+repo_str1: "deb [signed-by=/usr/share/keyrings/icinga-archive-keyring.gpg] https://packages.icinga.com/ubuntu icinga-{{ DIST }} main"
+repo_str2: "deb-src [signed-by=/usr/share/keyrings/icinga-archive-keyring.gpg] https://packages.icinga.com/ubuntu icinga-{{ DIST }} main"

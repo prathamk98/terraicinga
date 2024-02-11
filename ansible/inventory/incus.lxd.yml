@@ -1,0 +1,19 @@
+# Import required dependencies
+plugin: community.general.lxd
+url: unix:/var/lib/incus/unix.socket
+type_filter: both
+
+# Set group names
+groupby:
+  icinga:
+    type: pattern
+    attribute: ^icinga
+  master:
+    type: pattern
+    attribute: ^icingamaster
+  sat:
+    type: pattern
+    attribute: ^icingasat
+  endpoints:
+    type: pattern
+    attribute: ^icingaep

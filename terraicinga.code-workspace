@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "ansible"
+		},
+		{
+			"path": "terraform"
+		}
+	],
+	"settings": {
+		"ansible.python.interpreterPath": "/home/pegasus/terraicinga/ansible/venv/bin/python",
+		"yaml.schemas": {
+			"https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/inventory.json": "file:///home/pegasus/terraicinga/ansible/inventory/icingasetup.yml"
+		}
+	}
+}
