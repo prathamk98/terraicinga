@@ -21,7 +21,6 @@ variable "instance_names" {
     "icingaep1",
     "icingaep2",
     "icingaep3",
-    "icingaep4"
   ]
 }
 
